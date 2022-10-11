@@ -161,12 +161,10 @@ struct Big_number
             int now = length - 100;
             while (now < length - 1 && num[now] == 10)
             {
-                std::cout << now << " " << num[now] << std::endl;
                 num[now + 1] += num[now] / 10;
                 num[now] %= 10;
                 now++;
             }
-            std::cout << length << " " << now << " " << num[now] << std::endl;
             if (num[now] == 10)
             {
                 power += length;
@@ -177,7 +175,6 @@ struct Big_number
                 return;
             }
         }
-        std::cout << "www" << std::endl;
         int new_len = 100;
         while (new_len > 0 && num[length - new_len] == 0) //去除后导0
         {
@@ -284,9 +281,13 @@ struct Big_number
         }
         if (positive) //全为正数
         {
+            if(length==1&&num[0]==0)
+                return true;
+            if(number.length==1&&number.num[0]==0)
+                return false;
             if (length + power == number.length + number.power) //最高位数相同
             {
-                for (int i = 1; i <= length && i <= number.length; i++) //从最高位以此比较，若不相等则返回大小关系
+                for (int i = 1; i <= length && i <= number.length; i++) //从最高位依次比较，若不相等则返回大小关系
                 {
                     if (num[length - i] == number.num[number.length - i])
                         continue;
@@ -300,7 +301,7 @@ struct Big_number
         {
             if (length + power == number.length + number.power) //最高位数相同
             {
-                for (int i = 1; i <= length && i <= number.length; i++) //从最高位以此比较，若不相等则返回大小关系
+                for (int i = 1; i <= length && i <= number.length; i++) //从最高位依次比较，若不相等则返回大小关系
                 {
                     if (num[length - i] == number.num[number.length - i])
                         continue;
