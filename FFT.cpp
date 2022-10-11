@@ -84,7 +84,7 @@ void mutiply(const int *num1, int len1, const int *num2, int len2, int *&ret, in
     long long *val_to_cof;
     int *rev;
     int n;
-    init(len1 + len2 - 1, n, rev, cof_to_val, val_to_cof);
+    init(len1 + len2, n, rev, cof_to_val, val_to_cof);
     long long *A = new long long[n];
     long long *B = new long long[n];
     for (int i = 0; i < len1; i++)
@@ -100,7 +100,7 @@ void mutiply(const int *num1, int len1, const int *num2, int len2, int *&ret, in
     for (int i = 0; i < n; i++)
         A[i] = A[i] * B[i] % 998244353;
     value_to_coefficient(A, n, rev, val_to_cof);
-    ret_len = len1 + len2 - 1;
+    ret_len = len1 + len2;
     ret = new int[ret_len];
     for (int i = 0; i < ret_len; i++)
         ret[i] = A[i] % 998244353;

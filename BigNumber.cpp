@@ -182,6 +182,8 @@ void Big_number::fixed() //若数字的有效数字大于100位，则将其改�
     }
     power += length - new_len;
     length = new_len;
+    delete[] num;
+    num = digits;
     return;
 }
 
@@ -263,7 +265,7 @@ FORMAT_ERROR: //该数格式错误,将该数清零并返回false
     return false;
 }
 
-bool Big_number::operator<(const Big_number number) //比较两个数的大小关系
+bool Big_number::operator<(const Big_number number) const //比较两个数的大小关系
 {
     if (positive != number.positive) //一正一负
     {
@@ -303,7 +305,7 @@ bool Big_number::operator<(const Big_number number) //比较两个数的大小�
     }
 }
 
-Big_number Big_number::operator+(Big_number number) //进行加法计算
+Big_number Big_number::operator+(Big_number number) const //进行加法计算
 {
     Big_number result;
     if (positive == number.positive) //符号相同,将数字位相加
@@ -390,10 +392,10 @@ Big_number Big_number::operator+(Big_number number) //进行加法计算
         {
             len--;
         }
-        result.positive=true;
+        result.positive = true;
         if (digits[len - 1] < 0) //该数为负数,将每一位反转
         {
-            result.positive=false;
+            result.positive = false;
             for (int i = result.power; i < len; i++)
                 digits[i] *= -1;
             for (int i = 0; i < len - 1; i++)
@@ -419,16 +421,17 @@ Big_number Big_number::operator+(Big_number number) //进行加法计算
         result.power += min_digit;
         delete[] digits;
     }
+    result.fixed();
     return result;
 }
 
-Big_number Big_number::operator-(Big_number number) //进行减法计算,a-b就是a+(-b)
+Big_number Big_number::operator-(Big_number number) const //进行减法计算,a-b就是a+(-b)
 {
     number.positive = !number.positive;
     return (*this) + number;
 }
 
-Big_number Big_number::operator*(Big_number number) //进行乘法计算
+Big_number Big_number::operator*(Big_number number) const //进行乘法计算
 {
     Big_number result;
     int *digits;
@@ -463,6 +466,7 @@ Big_number Big_number::operator*(Big_number number) //进行乘法计算
     }
     delete[] digits;
     result.power += power + number.power;
+    result.fixed();
     return result;
 }
 
@@ -492,7 +496,7 @@ Big_number Big_number::half() //返回该数除2的结果(除2就是乘0.5)
             result.length = length + 1;
             for (int i = 1; i <= length - 1; i++)
             {
-                result.num[i] = (num[i + 1] & 1) * 5;
+                result.num[i] = (num[i] & 1) * 5;
                 result.num[i] += num[i - 1] / 2;
             }
             result.num[0] = 5;
@@ -529,7 +533,7 @@ Big_number Big_number::half() //返回该数除2的结果(除2就是乘0.5)
     return result;
 }
 
-Big_number Big_number::operator/(Big_number number) //进行除法计算 (a*10^k)/(b*10^m)=(a/b)*10^(k-m)
+Big_number Big_number::operator/(Big_number number) const //进行除法计算 (a*10^k)/(b*10^m)=(a/b)*10^(k-m)
 {
     if (number.length == 1 && number.num[0] == 0)
     {
@@ -569,9 +573,11 @@ Big_number Big_number::operator/(Big_number number) //进行除法计算 (a*10^k
         {
             l = mid;
         }
+        Big_number aowu = mid * number;
         cnt++;
     }
     l.power += new_power;
+    l.fixed();
     return l;
 }
 
