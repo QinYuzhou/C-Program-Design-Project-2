@@ -130,6 +130,45 @@ Big_number::Big_number(long long number) //将long long转化为Big_Number
     }
 }
 
+Big_number::Big_number(const Big_number &number) //将Big_Number赋值给当前数
+{
+    positive = number.positive;
+    length = number.length;
+    num = new int[length];
+    for (int i = 0; i < length; i++)
+        num[i] = number.num[i];
+    power = number.power;
+}
+
+Big_number::Big_number(Big_number &&number) //将右值深拷贝
+{
+    positive = number.positive;
+    length = number.length;
+    num = new int[length];
+    for (int i = 0; i < length; i++)
+        num[i] = number.num[i];
+    power = number.power;
+}
+
+Big_number::~Big_number() //析构函数
+{
+    if (num != NULL)
+        delete[] num;
+}
+
+void Big_number::clone(const Big_number &number) //将number复制
+{
+    positive = number.positive;
+    length = number.length;
+    if (num != NULL)
+        delete[] num;
+    num = new int[length];
+    for (int i = 0; i < length; i++)
+        num[i] = number.num[i];
+    power = number.power;
+    return;
+}
+
 void Big_number::clear() //将数字归零
 {
     positive = true;
@@ -265,7 +304,23 @@ FORMAT_ERROR: //该数格式错误,将该数清零并返回false
     return false;
 }
 
-bool Big_number::operator<(const Big_number number) const //比较两个数的大小关系
+Big_number &Big_number::operator=(const Big_number &number) //深度拷贝
+{
+    if (this == &number)
+        return (*this);
+    clone(number);
+    return (*this);
+}
+
+Big_number &Big_number::operator=(Big_number &&number) //右值拷贝时也进行深度拷贝
+{
+    if (this == &number)
+        return (*this);
+    clone(number);
+    return (*this);
+}
+
+bool Big_number::operator<(const Big_number &number) const //比较两个数的大小关系
 {
     if (positive != number.positive) //一正一负
     {
@@ -305,7 +360,22 @@ bool Big_number::operator<(const Big_number number) const //比较两个数的�
     }
 }
 
-Big_number Big_number::operator+(Big_number number) const //进行加法计算
+bool Big_number::operator>(const Big_number &number) const //比较两个数的大小关系
+{
+    return number<(*this);
+}
+
+bool Big_number::operator<=(const Big_number &number) const //比较两个数的大小关系
+{
+    return !((*this)>number);
+}
+    
+bool Big_number::operator>=(const Big_number &number) const //比较两个数的大小关系
+{
+    return !((*this)<number);
+}
+
+Big_number Big_number::operator+(const Big_number &number) const //进行加法计算
 {
     Big_number result;
     if (positive == number.positive) //符号相同,将数字位相加
@@ -424,13 +494,15 @@ Big_number Big_number::operator+(Big_number number) const //进行加法计算
     return result;
 }
 
-Big_number Big_number::operator-(Big_number number) const //进行减法计算,a-b就是a+(-b)
+Big_number Big_number::operator-(const Big_number &number) const //进行减法计算,a-b就是a+(-b)
 {
-    number.positive = !number.positive;
-    return (*this) + number;
+    Big_number copy;
+    copy.clone(number);
+    copy.positive=!copy.positive;
+    return (*this) + copy;
 }
 
-Big_number Big_number::operator*(Big_number number) const //进行乘法计算
+Big_number Big_number::operator*(const Big_number &number) const //进行乘法计算
 {
     Big_number result;
     int *digits;
@@ -531,37 +603,75 @@ Big_number Big_number::half() const //返回该数除2的结果(除2就是乘0.5
     return result;
 }
 
-Big_number Big_number::operator/(Big_number number) const //进行除法计算 (a*10^k)/(b*10^m)=(a/b)*10^(k-m),通过二分答案实现
+Big_number Big_number::multiply() const //返回该数乘2的结果
+{
+    Big_number result;
+    result.positive = positive;
+    int *digits = new int[length + 1];
+    digits[length] = 0;
+    for (int i = 0; i < length; i++)
+        digits[i] = num[i] * 2;
+    for (int i = 0; i < length; i++)
+    {
+        digits[i + 1] += digits[i] / 10;
+        digits[i] %= 10;
+    }
+    result.length = length + 1;
+    while (result.length > 0 && digits[result.length - 1] == 0)
+    {
+        result.length--;
+    }
+    if (!result.length)
+    {
+        result.clear();
+        return result;
+    }
+    result.power = 0;
+    while (digits[result.power] == 0)
+        result.power++;
+    result.length -= result.power;
+    result.num = new int[result.length];
+    for (int i = 0; i < result.length; i++)
+        result.num[i] = digits[i + result.power];
+    result.power += power;
+    delete[] digits;
+    return result;
+}
+
+Big_number Big_number::operator/(const Big_number &number) const //进行除法计算 (a*10^k)/(b*10^m)=(a/b)*10^(k-m),通过二分答案实现
 {
     if (number.length == 1 && number.num[0] == 0)
     {
         return Big_number(0);
     }
-    Big_number l, r;
+    Big_number l, r, copy;
+    copy = number;
     int new_power = power - number.power;
-    number.power = power;
-    if (positive == number.positive) //结果为正数
+    copy.power = power;
+    if (positive == copy.positive) //结果为正数
     {
-        l = Big_number(0), r = Big_number(1);
-        while (r * number < (*this))
+        l = Big_number(0);
+        r = Big_number(1);
+        while (r * copy < (*this))
         {
             l = r;
-            r = r * Big_number(2);
+            r = r.multiply();
         }
     }
     else //结果为负数
     {
-        l = Big_number(-1), r = Big_number(0);
-        while ((*this) < l * number)
+        l = Big_number(-1);
+        r = Big_number(0);
+        while ((*this) < l * copy)
         {
             r = l;
-            l = l * Big_number(2);
+            l = l.multiply();
         }
     }
     int cnt = 0;
-    while (cnt < 500)
+    while (cnt < 350)
     {
-        Big_number mid = l + r;
+        Big_number mid = (l + r);
         mid = mid.half();
         if ((*this) < (mid * number))
         {
@@ -578,7 +688,97 @@ Big_number Big_number::operator/(Big_number number) const //进行除法计算 (
     return l;
 }
 
-std::ostream &operator<<(std::ostream &out, Big_number &num) //重载输出流
+Big_number Big_number::sqrt() const //返回开根的结果
+{
+    Big_number l, r;
+    l = Big_number(0);
+    r = Big_number(1);
+    if ((*this) < Big_number(0))
+        return Big_number(0);
+    while ((r * r) < (*this))
+    {
+        l = r;
+        r = (r * 2);
+    }
+    int cnt = 0;
+    while (cnt < 350)
+    {
+        Big_number mid = (l + r);
+        mid = mid.half();
+        if ((*this) < (mid * mid))
+        {
+            r = mid;
+        }
+        else
+        {
+            l = mid;
+        }
+        cnt++;
+    }
+    l.fixed();
+    return l;
+}
+
+Big_number Big_number::pow(const Big_number &number) const //返回该数的number次方
+{
+    bool flag = false;
+    Big_number result = Big_number(1);
+    Big_number index = Big_number(1);
+    Big_number now;
+    now = (*this);
+    Big_number copy;
+    copy = number;
+    if (!number.positive)
+    {
+        flag = true;
+        copy.positive = true;
+    }
+    while (index < number)
+    {
+        index = index.multiply();
+        now = (now * now);
+    }
+    index.fixed();
+    int cnt = 350;
+    while (cnt)
+    {
+        if (index < copy)
+        {
+            copy = (copy - index);
+            result = (result * now);
+        }
+        index = index.half();
+        now = now.sqrt();
+        cnt--;
+    }
+    if (flag)
+        return Big_number(1) / result;
+    return result;
+}
+
+Big_number max(const Big_number &number1, const Big_number &number2) //返回较大值
+{
+    if (number1 < number2)
+        return number2;
+    return number1;
+}
+
+Big_number min(const Big_number &number1, const Big_number &number2) //返回较小值
+{
+    if (number1 < number2)
+        return number1;
+    return number2;
+}
+
+Big_number abs(const Big_number &number) //返回绝对值
+{
+    Big_number result;
+    result.clone(number);
+    result.positive = true;
+    return result;
+}
+
+std::ostream &operator<<(std::ostream &out, const Big_number &num) //重载输出流
 {
     if (!num.positive) //如果是负数,则先输出负号
         out << "-";
