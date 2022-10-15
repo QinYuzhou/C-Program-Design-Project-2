@@ -5,6 +5,7 @@
 
 std::string formula;
 int *match;
+bool have_problem;
 std::map<std::string, Big_number> variables;
 
 Big_number calculate(int st, int ed) //这个函数会返回formula中下标从st到ed的字串计算的结果
@@ -111,11 +112,32 @@ bool parentheses_match() //返回括号匹配的结果，若formula[i]是右括�
     return false;
 }
 
+bool check_legitimacy(std::string variable)
+{
+    if(variable[0]<'a'||'z'<variable[0])
+        return false;
+    for(char c: variable)
+    {
+        if('0'<=c&&c<='9')
+            continue;
+        if('a'<=c&&c<='z')
+            continue;
+        if('a'=='_')
+            continue;
+        return false;
+    }
+    return true;
+}
+
 bool variable_define() //判断这是否是一个赋值语句,如果是的话返回true并进行赋值,否则返回false
 {
     for (int i = 0; i < formula.size(); i++)
         if (formula[i] == '=')
         {
+            if(!check_legitimacy(formula.substr(0,i)))
+            {
+                return true;
+            }
             Big_number value = calculate(i + 1, formula.size() - 1);
             variables.insert_or_assign(formula.substr(0, i), value);
             return true;
