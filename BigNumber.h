@@ -40,13 +40,15 @@ struct Big_number
 
     Big_number& operator=(Big_number &&number);//右值拷贝时也进行深度拷贝
 
-    bool operator<(const Big_number &number) const; //比较两个数的大小关系
+    bool operator<(const Big_number &number) const; //比较两个数的大小关系,若前者小于后者,返回true
 
-    bool operator>(const Big_number &number) const; //比较两个数的大小关系
+    bool operator>(const Big_number &number) const; //比较两个数的大小关系,若前者大于后者,返回true
 
-    bool operator<=(const Big_number &number) const; //比较两个数的大小关系
+    bool operator<=(const Big_number &number) const; //比较两个数的大小关系,若前者小于等于后者,返回true
     
-    bool operator>=(const Big_number &number) const; //比较两个数的大小关系
+    bool operator>=(const Big_number &number) const; //比较两个数的大小关系,若前者大于等于后者,返回true
+
+    bool operator==(const Big_number &number) const; //比较两个数的大小关系,若前者等于后者,返回true
 
     Big_number operator+(const Big_number &number) const; //进行加法计算
 

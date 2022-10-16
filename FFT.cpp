@@ -78,7 +78,7 @@ void value_to_coefficient(long long *v, int n, const int *rev, const long long *
     return;
 }
 
-void mutiply(const int *num1, int len1, const int *num2, int len2, int *&ret, int &ret_len)
+void mul(const int *num1, int len1, const int *num2, int len2, int *&ret, int &ret_len)
 {
     long long *cof_to_val;
     long long *val_to_cof;

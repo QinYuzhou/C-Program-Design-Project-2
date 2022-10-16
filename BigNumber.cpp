@@ -92,6 +92,7 @@ Big_number::Big_number() //构造函数,默认初值为0
 
 Big_number::Big_number(long long number) //将long long转化为Big_Number
 {
+    //判断number的正负性
     if (number < 0)
     {
         number *= -1;
@@ -101,6 +102,7 @@ Big_number::Big_number(long long number) //将long long转化为Big_Number
     {
         positive = true;
     }
+    //去除number的后导0
     power = 0;
     while (number && number % 10 == 0)
     {
@@ -320,7 +322,7 @@ Big_number &Big_number::operator=(Big_number &&number) //右值拷贝时也进�
     return (*this);
 }
 
-bool Big_number::operator<(const Big_number &number) const //比较两个数的大小关系
+bool Big_number::operator<(const Big_number &number) const //比较两个数的大小关系,若前者小于后者,返回true
 {
     if (positive != number.positive) //一正一负
     {
@@ -360,19 +362,24 @@ bool Big_number::operator<(const Big_number &number) const //比较两个数的�
     }
 }
 
-bool Big_number::operator>(const Big_number &number) const //比较两个数的大小关系
+bool Big_number::operator>(const Big_number &number) const //比较两个数的大小关系,若前者大于后者,返回true
 {
-    return number<(*this);
+    return number < (*this);
 }
 
-bool Big_number::operator<=(const Big_number &number) const //比较两个数的大小关系
+bool Big_number::operator<=(const Big_number &number) const //比较两个数的大小关系,若前者小于等于后者,返回true
 {
-    return !((*this)>number);
+    return !((*this) > number);
 }
-    
-bool Big_number::operator>=(const Big_number &number) const //比较两个数的大小关系
+
+bool Big_number::operator>=(const Big_number &number) const //比较两个数的大小关系,若前者大于等于后者,返回true
 {
-    return !((*this)<number);
+    return !((*this) < number);
+}
+
+bool Big_number::operator==(const Big_number &number) const //比较两个数的大小关系,若前者等于后者,返回true
+{
+    return !(((*this) > number) || ((*this) < number));
 }
 
 Big_number Big_number::operator+(const Big_number &number) const //进行加法计算
@@ -498,7 +505,7 @@ Big_number Big_number::operator-(const Big_number &number) const //进行减法�
 {
     Big_number copy;
     copy.clone(number);
-    copy.positive=!copy.positive;
+    copy.positive = !copy.positive;
     return (*this) + copy;
 }
 
@@ -508,7 +515,7 @@ Big_number Big_number::operator*(const Big_number &number) const //进行乘法�
     int *digits;
     int len;
     result.positive = !(positive ^ number.positive);
-    mutiply(num, length, number.num, number.length, digits, len);
+    mul(num, length, number.num, number.length, digits, len);
     for (int i = 0; i < len - 1; i++)
     {
         digits[i + 1] += digits[i] / 10;

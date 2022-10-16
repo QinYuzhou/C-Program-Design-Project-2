@@ -83,6 +83,7 @@ Big_number calculate(int st, int ed) //这个函数会返回formula中下标从s
     {
         return result;
     }
+    have_problem=true;
     return Big_number(0);
 }
 
@@ -112,7 +113,7 @@ bool parentheses_match() //返回括号匹配的结果，若formula[i]是右括�
     return false;
 }
 
-bool check_legitimacy(std::string variable)
+bool check_legitimacy(std::string variable)//检查变量名是否符合规范
 {
     if(variable[0]<'a'||'z'<variable[0])
         return false;
@@ -136,6 +137,7 @@ bool variable_define() //判断这是否是一个赋值语句,如果是的话返
         {
             if(!check_legitimacy(formula.substr(0,i)))
             {
+                have_problem=true;
                 return true;
             }
             Big_number value = calculate(i + 1, formula.size() - 1);
@@ -156,7 +158,7 @@ void remove_space() //删除formula中所有空格
 
 int main()
 {
-    /*
+    
     while(true)
     {
         std::string s1,s2;
@@ -164,13 +166,14 @@ int main()
         Big_number a,b,c;
         a.change_to(s1);
         b.change_to(s2);
-        c=a+b;
-        std::cout<<c<<std::endl;
+        bool flag=(a==b);
+        std::cout<<flag<<std::endl;
     }
-    */
+    
     while (true)
     {
         std::cin >> formula;
+        have_problem=false;
         remove_space();
         if (!parentheses_match())
             std::cout << "Invalid format" << std::endl;

@@ -8,4 +8,4 @@ void coefficient_to_value(long long *v, int n, const int *rev, const long long *
 
 void value_to_coefficient(long long *v, int n, const int *rev, const long long *val_to_cof); //将数组v从点值表达式转化为系数表达式
 
-void mutiply(const int *num1, int len1, const int *num2, int len2, int *&ret, int &ret_len); //将num1与num2相乘的结果存储在ret中返回
+void mul(const int *num1, int len1, const int *num2, int len2, int *&ret, int &ret_len); //将num1与num2相乘的结果存储在ret中返回
