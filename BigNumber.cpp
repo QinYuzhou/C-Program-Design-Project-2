@@ -5,7 +5,7 @@ bool get_E_location(std::string str, int &e) //找到'e'在字符串中的位置
     e = -1;
     for (int i = 0; i < str.size(); i++)
     {
-        if (str[i] == 'e' || str[i] == 'E')
+        if (str[i] == 'e')
         {
             if (e == -1)
             {
@@ -645,61 +645,29 @@ Big_number Big_number::multiply() const //返回该数乘2的结果
     return result;
 }
 
-Big_number Big_number::operator/(const Big_number &number) const //进行除法计算 (a*10^k)/(b*10^m)=(a/b)*10^(k-m),通过二分答案实现
+Big_number Big_number::operator/(const Big_number &number) const //通过牛顿迭代实现
 {
-    if (number.length == 1 && number.num[0] == 0)
+    Big_number result=Big_number(0);
+    Big_number new_result=Big_number(1);
+    new_result.power=-(number.power+number.length);
+    Big_number eps;
+    eps.change_to("1e-105");
+    while(abs(result-new_result)>eps)
     {
-        return Big_number(0);
+        result=new_result;
+        new_result=result.multiply()-number*(result*result);
     }
-    Big_number l, r, copy;
-    copy = number;
-    int new_power = power - number.power;
-    copy.power = power;
-    if (positive == copy.positive) //结果为正数
-    {
-        l = Big_number(0);
-        r = Big_number(1);
-        while (r * copy < (*this))
-        {
-            l = r;
-            r = r.multiply();
-        }
-    }
-    else //结果为负数
-    {
-        l = Big_number(-1);
-        r = Big_number(0);
-        while ((*this) < l * copy)
-        {
-            r = l;
-            l = l.multiply();
-        }
-    }
-    int cnt = 0;
-    while (cnt < 350)
-    {
-        Big_number mid = (l + r);
-        mid = mid.half();
-        if ((*this) < (mid * number))
-        {
-            r = mid;
-        }
-        else
-        {
-            l = mid;
-        }
-        cnt++;
-    }
-    l.power += new_power;
-    l.fixed();
-    return l;
+    result=new_result*(*this);
+    result.fixed();
+    return result;
 }
 
 Big_number Big_number::sqrt() const //返回开根的结果
 {
-    Big_number l, r;
+    Big_number l, r,eps;
     l = Big_number(0);
     r = Big_number(1);
+    eps.change_to("1e-105");
     if ((*this) < Big_number(0))
         return Big_number(0);
     while ((r * r) < (*this))
@@ -708,7 +676,7 @@ Big_number Big_number::sqrt() const //返回开根的结果
         r = (r * 2);
     }
     int cnt = 0;
-    while (cnt < 350)
+    while ((r-l)>eps)
     {
         Big_number mid = (l + r);
         mid = mid.half();
@@ -731,6 +699,8 @@ Big_number Big_number::pow(const Big_number &number) const //返回该数的numb
     bool flag = false;
     Big_number result = Big_number(1);
     Big_number index = Big_number(1);
+    Big_number eps;
+    eps.change_to("1e-105");
     Big_number now;
     now = (*this);
     Big_number copy;
@@ -746,17 +716,16 @@ Big_number Big_number::pow(const Big_number &number) const //返回该数的numb
         now = (now * now);
     }
     index.fixed();
-    int cnt = 350;
-    while (cnt)
+    now.fixed();
+    while (copy>eps)
     {
-        if (index < copy)
+        if (index <= copy)
         {
             copy = (copy - index);
             result = (result * now);
         }
         index = index.half();
         now = now.sqrt();
-        cnt--;
     }
     if (flag)
         return Big_number(1) / result;
@@ -789,13 +758,13 @@ std::ostream &operator<<(std::ostream &out, const Big_number &num) //重载输�
 {
     if (!num.positive) //如果是负数,则先输出负号
         out << "-";
-    if (num.length >= 20 || num.power + num.length >= 20 || num.power <= -20) //该数的位数比20大时,使用科学计数法
+    if (num.length >= 30 || num.power + num.length >= 30 || num.power <= -30) //该数的位数比20大时,使用科学计数法
     {
         out << num.num[num.length - 1];
-        if (num.length > 20)
+        if (num.length > 30)
         {
             out << ".";
-            for (int i = 1; i <= 19; i++)
+            for (int i = 1; i <= 29; i++)
                 out << num.num[num.length - 1 - i];
         }
         else if (num.length > 1)

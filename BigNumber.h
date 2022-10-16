@@ -60,7 +60,7 @@ struct Big_number
 
     Big_number multiply() const; //返回该数乘2的结果
 
-    Big_number operator/(const Big_number &number) const; //进行除法计算 (a*10^k)/(b*10^m)=(a/b)*10^(k-m),通过二分答案实现
+    Big_number operator/(const Big_number &number) const; //通过牛顿迭代实现
 
     Big_number sqrt() const; //返回开根的结果
 
