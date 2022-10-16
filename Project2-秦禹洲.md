@@ -1,9 +1,9 @@
 # CS205 C/C++ Program Design - Project 2
 
 -----
-**Name**: 秦禹洲(Qin Yuzhou)
-**SID**: 12110601
-**Code**: <https://github.com/QinYuzhou/C-Program-Design-Project-2>
+**Name**: 秦禹洲(Qin Yuzhou)  
+**SID**: 12110601  
+**Code**: <https://github.com/QinYuzhou/C-Program-Design-Project-2>  
 
 ## Part 1 - Analysis
 
